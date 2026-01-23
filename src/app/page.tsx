@@ -1,65 +1,77 @@
-import Image from "next/image";
+import React from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import ProfileHero from "@/components/ProfileHero";
+import ListSection from "@/components/ListSection";
+import SkillsSection from "@/components/SkillsSection";
+
+// =================================================================================================
+// ▼▼▼ 設定エリア：ここを書き換えて、自分のポートフォリオを完成させてください ▼▼▼
+// =================================================================================================
+
+const portfolio = {
+  // 1. あなたの名前（ローマ字または漢字）
+  name: "TARO YAMADA",
+
+  // 2. 所属・大学名など（肩書き）
+  university: "Digital Hollywood University",
+
+  // 3. 自己紹介文（1行〜2行程度）
+  description: "Webデザインとフロントエンド開発を学ぶ学生エンジニア。使いやすさと「カッコよさ」を両立したUIを目指しています。",
+
+  // 4. 保有資格リスト（箇条書きで表示されます）
+  qualifications: [
+    "基本情報技術者試験 合格",
+    "TOEIC 800点",
+    "色彩検定 2級",
+    "AWS Certified Cloud Practitioner"
+  ],
+
+  // 5. スキル・技術スタック（タグのように表示されます）
+  skills: [
+    "HTML/CSS",
+    "JavaScript",
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Tailwind CSS",
+    "Figma",
+    "Vercel"
+  ]
+};
+
+// =================================================================================================
+// ▲▲▲ 設定エリア終了：これ以降のコードは変更不要です ▲▲▲
+// =================================================================================================
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="min-h-screen bg-transparent text-white font-sans selection:bg-cyan-500 selection:text-white pb-0">
+      <Header />
+
+      {/* 自己紹介セクション */}
+      <ProfileHero
+        name={portfolio.name}
+        university={portfolio.university}
+        description={portfolio.description}
+      />
+
+      {/* 資格セクション */}
+      <ListSection
+        title="QUALIFICATIONS"
+        subtitle="保有資格"
+        items={portfolio.qualifications}
+        color="blue"
+      />
+
+      {/* スキルセクション */}
+      <SkillsSection
+        title="SKILLS"
+        subtitle="技術スタック"
+        skills={portfolio.skills}
+      />
+
+      <Footer />
+    </main>
   );
 }

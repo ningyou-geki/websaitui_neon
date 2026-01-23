@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --background: #000814;
+  /* Deep Navy */
+  --foreground: #ffffff;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* NEON COLORS */
+  --neon-blue: #00ffff;
+  /* Cyan/Blue Top */
+  --neon-purple: #bc13fe;
+  /* Magenta/Purple Bottom */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --card-bg-transparent: rgba(255, 255, 255, 0.05);
 }
 
 body {
-  background: var(--background);
+  /* Vertical Bi-color Gradient: Blue/Cyan Top -> Purple/Magenta Bottom */
+  background: linear-gradient(to bottom, #020912 0%, #050a1f 40%, #1a0b2e 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Neon Glow Utilities (Enhanced) */
+.neon-text-blue {
+  text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+  color: #fff;
+}
+
+.neon-text-purple {
+  text-shadow: 0 0 10px var(--neon-purple), 0 0 20px var(--neon-purple);
+  color: #fff;
+}
+
+.neon-box-blue {
+  box-shadow: 0 0 20px var(--neon-blue), inset 0 0 15px rgba(0, 255, 255, 0.1);
+  border: 1px solid var(--neon-blue);
+}
+
+.neon-box-purple {
+  box-shadow: 0 0 20px var(--neon-purple), inset 0 0 15px rgba(188, 19, 254, 0.1);
+  border: 1px solid var(--neon-purple);
+}
+
+/* Base card style for visibility */
+.glass-card {
+  background-color: var(--card-bg-transparent);
+  backdrop-filter: blur(5px);
 }
