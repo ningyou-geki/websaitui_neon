@@ -17,6 +17,9 @@ export default function Home() {
     updateData,         // データを更新する関数
     exportData,         // JSONとして書き出す関数
     importData,         // JSONを読み込む関数
+    saveToCloud,        // クラウド保存関数
+    isSaving,           // 保存中フラグ
+    saveSuccess,        // 保存成功フラグ
     isAntigravity,      // 無重力モードがONかどうかの状態
     setIsAntigravity,   // 無重力モードを切り替える関数
     isLoaded            // データの読み込みが完了したか
@@ -47,6 +50,9 @@ export default function Home() {
         onToggleAntigravity={setIsAntigravity}
         onExport={exportData}
         onImport={importData}
+        onSaveToCloud={saveToCloud}
+        isSaving={isSaving}
+        saveSuccess={saveSuccess}
       />
 
       {/* ヘッダーセクション */}

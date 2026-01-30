@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Download, Upload, Rocket, AlertTriangle } from "lucide-react";
+import { Download, Upload, Rocket, AlertTriangle, CloudUpload, Check } from "lucide-react";
 import { PortfolioData } from "@/types/portfolio";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ControlPanelProps {
     onSave?: () => void; // Keeping for backward compatibility or explicit save if needed, though auto-save is implemented
@@ -11,6 +12,9 @@ interface ControlPanelProps {
     onToggleAntigravity: (val: boolean) => void;
     onExport: () => void;
     onImport: (file: File) => void;
+    onSaveToCloud?: () => void;
+    isSaving?: boolean;
+    saveSuccess?: boolean;
 }
 
 export default function ControlPanel({
@@ -19,6 +23,9 @@ export default function ControlPanel({
     onToggleAntigravity,
     onExport,
     onImport,
+    onSaveToCloud,
+    isSaving,
+    saveSuccess
 }: ControlPanelProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,16 +46,63 @@ export default function ControlPanel({
             <button
                 onClick={() => onToggleAntigravity(!isAntigravity)}
                 className={`p-3 rounded-full shadow-lg transition-all duration-300 backdrop-blur-md border ${isAntigravity
-                        ? "bg-purple-600/80 text-white border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
-                        : "bg-slate-800/80 text-slate-400 border-slate-700 hover:text-white"
+                    ? "bg-purple-600/80 text-white border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.5)]"
+                    : "bg-slate-800/80 text-slate-400 border-slate-700 hover:text-white"
                     }`}
                 title="Toggle Antigravity (Press ESC to stop)"
             >
                 <Rocket className={`w-5 h-5 ${isAntigravity ? "animate-pulse" : ""}`} />
             </button>
 
-            {/* Main Controls - JSON I/O */}
+            {/* Main Controls - JSON I/O & Cloud */}
             <div className="flex bg-slate-900/90 border border-slate-700 rounded-xl p-2 shadow-2xl backdrop-blur-md gap-2">
+
+                {onSaveToCloud && (
+                    <motion.button
+                        layout
+                        onClick={onSaveToCloud}
+                        disabled={isSaving}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all text-sm relative overflow-hidden ${saveSuccess
+                                ? "bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]"
+                                : "bg-blue-600 hover:bg-blue-500 text-white"
+                            }`}
+                        title="Save to Cloud"
+                        animate={saveSuccess ? { scale: [1, 1.1, 1] } : {}}
+                    >
+                        <AnimatePresence mode="wait">
+                            {saveSuccess ? (
+                                <motion.span
+                                    key="success"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -20, opacity: 0 }}
+                                    className="flex items-center gap-2"
+                                >
+                                    <Check className="w-4 h-4" />
+                                    Success!
+                                </motion.span>
+                            ) : (
+                                <motion.span
+                                    key="normal"
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -20, opacity: 0 }}
+                                    className="flex items-center gap-2"
+                                >
+                                    {isSaving ? (
+                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    ) : (
+                                        <CloudUpload className="w-4 h-4" />
+                                    )}
+                                    {isSaving ? "Saving..." : "Cloud Save"}
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
+                    </motion.button>
+                )}
+
+                <div className="w-[1px] bg-slate-700 mx-1" />
+
                 <button
                     onClick={onExport}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors text-sm"
@@ -73,11 +127,6 @@ export default function ControlPanel({
                     className="hidden"
                     accept=".json"
                 />
-
-                {/* Removed Manual Save/Send buttons as requested to prioritize Local file flow, or keep as options? 
-            "Data is saved to localStorage... server save not needed". 
-            I'll keep them out or minimal to reduce clutter, favoring Export/Import.
-        */}
             </div>
 
             {isAntigravity && (

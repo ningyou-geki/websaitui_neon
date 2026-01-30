@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { PortfolioData, initialPortfolioData } from "@/types/portfolio";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const STORAGE_KEY = "antigravity_portfolio_data_v1";
 
@@ -9,34 +11,65 @@ export function usePortfolioData() {
     const [data, setData] = useState<PortfolioData>(initialPortfolioData);
     const [isAntigravity, setIsAntigravity] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
 
-    // Load from localStorage on mount and merge with initialData
-    useEffect(() => {
+    // Helper to merge data safely
+    const mergeData = (loadedData: any): PortfolioData => {
+        return {
+            ...initialPortfolioData,
+            ...loadedData,
+            profile: {
+                ...initialPortfolioData.profile,
+                ...(loadedData.profile || {})
+            },
+            // Ensure arrays are at least empty arrays if missing
+            projects: loadedData.projects || initialPortfolioData.projects,
+            skills: loadedData.skills || initialPortfolioData.skills,
+            qualifications: loadedData.qualifications || initialPortfolioData.qualifications
+        };
+    };
+
+    const loadFromCloud = useCallback(async () => {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                // Merge parsed data with initial data to ensure all fields exist
-                // This handles migration from flat structure to nested profile structure and new fields
-                const mergedData = {
-                    ...initialPortfolioData,
-                    ...parsed,
-                    profile: {
-                        ...initialPortfolioData.profile,
-                        ...(parsed.profile || {})
-                    },
-                    // Ensure arrays are at least empty arrays if missing
-                    projects: parsed.projects || initialPortfolioData.projects,
-                    skills: parsed.skills || initialPortfolioData.skills,
-                    qualifications: parsed.qualifications || initialPortfolioData.qualifications
-                };
-                setData(mergedData);
+            console.log("Loading from cloud...");
+            const docRef = doc(db, "portfolios", "default-user");
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const cloudData = docSnap.data();
+                const merged = mergeData(cloudData);
+                setData(merged);
+                console.log("Cloud data loaded");
+            } else {
+                console.log("No cloud data found");
             }
         } catch (e) {
-            console.error("Failed to load portfolio data", e);
+            console.error("Failed to load from cloud", e);
         }
-        setIsLoaded(true);
     }, []);
+
+    // Load from localStorage on mount and merge with initialData, then check cloud
+    useEffect(() => {
+        const init = async () => {
+            try {
+                // 1. Local Storage (Fast)
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setData(mergeData(parsed));
+                }
+            } catch (e) {
+                console.error("Failed to load local data", e);
+            }
+            setIsLoaded(true);
+
+            // 2. Cloud Storage (Source of Truth)
+            // Only load from cloud if we are online/connected - simplistic check by just trying
+            await loadFromCloud();
+        };
+        init();
+    }, [loadFromCloud]);
 
     // Auto-save to localStorage whenever data changes
     useEffect(() => {
@@ -48,6 +81,22 @@ export function usePortfolioData() {
             }
         }
     }, [data, isLoaded]);
+
+    const saveToCloud = useCallback(async () => {
+        if (!data) return;
+        setIsSaving(true);
+        setSaveSuccess(false);
+        try {
+            await setDoc(doc(db, "portfolios", "default-user"), data);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000); // Reset after 3s
+        } catch (e) {
+            console.error("Failed to save to cloud", e);
+            alert("クラウド保存に失敗しました");
+        } finally {
+            setIsSaving(false);
+        }
+    }, [data]);
 
     // Back Button Trap
     useEffect(() => {
@@ -145,6 +194,9 @@ export function usePortfolioData() {
         data,
         updateData,
         saveToStorage,
+        saveToCloud,
+        isSaving,
+        saveSuccess,
         resetData,
         exportData,
         importData,
