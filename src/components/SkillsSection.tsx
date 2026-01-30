@@ -1,12 +1,29 @@
 import React from "react";
+import { Plus, X } from "lucide-react";
 
 interface SkillsSectionProps {
     title: string;
     subtitle: string;
     skills: string[];
+    onUpdateSkills: (skills: string[]) => void;
 }
 
-export default function SkillsSection({ title, subtitle, skills }: SkillsSectionProps) {
+export default function SkillsSection({ title, subtitle, skills, onUpdateSkills }: SkillsSectionProps) {
+    const handleUpdate = (index: number, value: string) => {
+        const newSkills = [...skills];
+        newSkills[index] = value;
+        onUpdateSkills(newSkills);
+    };
+
+    const handleDelete = (index: number) => {
+        const newSkills = skills.filter((_, i) => i !== index);
+        onUpdateSkills(newSkills);
+    };
+
+    const handleAdd = () => {
+        onUpdateSkills([...skills, "New Skill"]);
+    };
+
     return (
         <section className="py-20 px-4 relative">
             {/* Background Aura for Skills (Purple/Magenta) */}
@@ -24,16 +41,33 @@ export default function SkillsSection({ title, subtitle, skills }: SkillsSection
                     {skills.map((skill, index) => (
                         <div
                             key={index}
-                            className="group relative px-6 py-3 rounded-sm overflow-hidden border border-[var(--neon-purple)] glass-card transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--neon-purple)]"
+                            className="group relative px-6 py-3 rounded-sm overflow-hidden border border-[var(--neon-purple)] glass-card transition-all duration-300 hover:scale-105 hover:shadow-[0_0_15px_var(--neon-purple)] flex items-center gap-2"
                         >
                             {/* Hover Overlay */}
-                            <div className="absolute inset-0 bg-[var(--neon-purple)] opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                            <div className="absolute inset-0 bg-[var(--neon-purple)] opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none"></div>
 
-                            <span className="relative text-white font-bold tracking-wide z-10 text-shadow-sm">
-                                {skill}
-                            </span>
+                            <input
+                                value={skill}
+                                onChange={(e) => handleUpdate(index, e.target.value)}
+                                className="relative z-10 bg-transparent text-white font-bold tracking-wide text-shadow-sm text-center min-w-[3rem] focus:outline-none focus:border-b border-white"
+                                style={{ width: `${Math.max(skill.length, 3)}ch` }}
+                            />
+
+                            <button
+                                onClick={() => handleDelete(index)}
+                                className="relative z-10 opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-opacity"
+                            >
+                                <X size={14} />
+                            </button>
                         </div>
                     ))}
+
+                    <button
+                        onClick={handleAdd}
+                        className="px-4 py-3 rounded-sm border border-dashed border-gray-600 hover:border-white hover:text-white text-gray-400 transition-all flex items-center gap-2 bg-transparent/50"
+                    >
+                        <Plus size={16} /> Add Skill
+                    </button>
                 </div>
             </div>
         </section>
